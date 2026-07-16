@@ -1,0 +1,41 @@
+# Git
+.git/
+.gitignore
+.gitattributes
+
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.egg
+
+# Virtual environment
+venv/
+.venv/
+env/
+
+# Environment (keep .env.example for reference)
+.env
+
+# Database
+db.sqlite3
+*.sqlite3
+
+# IDE
+.idea/
+.vs/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Freebuff Desktop
+.freebuff/
+
+# Docker
+docker-compose.yml
+Dockerfile
+.dockerignore

@@ -1,5 +1,7 @@
 # 📋 İş Takip SPA — Task Tracking Dashboard
 
+[![Docker](https://img.shields.io/badge/Docker-ready-2496ED?logo=docker)](https://www.docker.com/)
+
 [![Django](https://img.shields.io/badge/Django-6.0.3-092E20?logo=django)](https://www.djangoproject.com/)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?logo=python)](https://www.python.org/)
 [![Vue.js](https://img.shields.io/badge/Vue-3-4FC08D?logo=vue.js)](https://vuejs.org/)
@@ -78,6 +80,69 @@ python manage.py runserver
 ```
 
 Visit **http://localhost:8000/** in your browser.
+
+---
+
+## 🐳 Docker Support
+
+### Prerequisites
+
+- [Docker](https://docs.docker.com/get-docker/) installed on your system
+- [Docker Compose](https://docs.docker.com/compose/install/) (included with Docker Desktop)
+
+### Quick Start with Docker
+
+```bash
+# 1. Clone the repository
+git clone https://github.com/YOUR_USERNAME/is_takip_django.git
+cd is_takip_django
+
+# 2. Configure environment variables
+cp .env.example .env
+# Edit .env with your settings
+
+# 3. Build and run with Docker Compose
+docker compose up --build
+
+# 4. Open in browser
+open http://localhost:8000/
+```
+
+### Docker Production Mode
+
+```bash
+# Run in production mode (DEBUG=False, Gunicorn)
+DJANGO_DEBUG=False docker compose up --build
+```
+
+### Docker Commands
+
+| Command | Description |
+|---------|-------------|
+| `docker compose up` | Start the application |
+| `docker compose up --build` | Rebuild and start |
+| `docker compose down` | Stop the application |
+| `docker compose logs -f` | Follow log output |
+| `docker compose exec web python manage.py createsuperuser` | Create admin user |
+| `docker compose exec web python manage.py shell` | Django shell |
+
+### Container Structure
+
+```
+is_takip_django/
+│
+├── Dockerfile          # Multi-stage production image
+├── docker-compose.yml  # Service orchestration
+├── entrypoint.sh       # Container startup script (migrations, static files, server)
+├── .dockerignore       # Build context exclusions
+└── ...
+```
+
+### Volumes
+
+- **db_data** — Persistent SQLite database (survives container restarts)
+- **static_volume** — Collected static files
+- **.env** — Environment file mounted as read-only
 
 ---
 
