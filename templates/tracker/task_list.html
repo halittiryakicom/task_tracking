@@ -194,10 +194,7 @@ birkaç tıkla düzenle.{% endblock %}
                         {% endif %}
                     </td>
                     <td class="text-end">
-                        <form method="post" action="{% url 'tracker:task_toggle_complete' task.pk %}" class="d-inline">
-                            {% csrf_token %}
-                            <button class="btn btn-sm btn-outline-secondary">Durum</button>
-                        </form>
+                        <a href="{% url 'tracker:task_update' task.pk %}" class="btn btn-sm btn-outline-secondary">Durum</a>
                         <a href="{% url 'tracker:task_update' task.pk %}"
                             class="btn btn-sm btn-outline-primary">Düzenle</a>
                         <a href="{% url 'tracker:task_delete' task.pk %}" class="btn btn-sm btn-outline-danger">Sil</a>
