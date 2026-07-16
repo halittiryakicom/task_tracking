@@ -50,7 +50,7 @@
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/is_takip_django.git
+git clone https://github.com/halittiryakicom/task_tracking.git
 cd is_takip_django
 
 # 2. Create and activate virtual environment
@@ -94,7 +94,7 @@ Visit **http://localhost:8000/** in your browser.
 
 ```bash
 # 1. Clone the repository
-git clone https://github.com/YOUR_USERNAME/is_takip_django.git
+git clone https://github.com/halittiryakicom/task_tracking.git
 cd is_takip_django
 
 # 2. Configure environment variables
