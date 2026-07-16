@@ -1,0 +1,1367 @@
+{% load static %}
+<!doctype html>
+<html lang="tr">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>İş Takip SPA</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+    <style>
+        :root {
+            --bg: #f4f6f8;
+            --surface: #ffffff;
+            --surface-soft: #f8fafc;
+            --border: #e2e8f0;
+            --text: #0f172a;
+            --muted: #64748b;
+            --primary: #2563eb;
+            --primary-soft: rgba(37, 99, 235, 0.10);
+            --success-soft: rgba(22, 163, 74, 0.12);
+            --warning-soft: rgba(234, 179, 8, 0.16);
+            --danger-soft: rgba(239, 68, 68, 0.12);
+            --shadow: 0 22px 50px rgba(15, 23, 42, 0.08);
+            --radius: 24px;
+        }
+
+        * {
+            box-sizing: border-box;
+        }
+
+        body {
+            margin: 0;
+            min-height: 100vh;
+            color: var(--text);
+            background:
+                radial-gradient(circle at top left, rgba(59, 130, 246, 0.10), transparent 20%),
+                radial-gradient(circle at top right, rgba(14, 165, 233, 0.10), transparent 20%),
+                linear-gradient(180deg, #fbfdff, var(--bg));
+            font-family: Inter, "Segoe UI", sans-serif;
+        }
+
+        .shell-nav {
+            position: sticky;
+            top: 0;
+            z-index: 40;
+            backdrop-filter: blur(14px);
+            background: rgba(255, 255, 255, 0.86);
+            border-bottom: 1px solid rgba(148, 163, 184, 0.14);
+        }
+
+        .shell-nav .container {
+            padding-right: clamp(5rem, 11vw, 9rem);
+        }
+
+        .brand-badge {
+            width: 2.75rem;
+            height: 2.75rem;
+            border-radius: 18px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 800;
+            color: #fff;
+            background: linear-gradient(135deg, #2563eb, #38bdf8);
+            box-shadow: 0 16px 35px rgba(37, 99, 235, 0.28);
+        }
+
+        .hero,
+        .section-card,
+        .modal-card,
+        .drawer-card,
+        .stat-card,
+        .task-card {
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+        }
+
+        .hero {
+            padding: 1.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .hero h1 {
+            font-size: clamp(2rem, 3vw, 3rem);
+            font-weight: 800;
+            margin-bottom: 0.65rem;
+        }
+
+        .hero p,
+        .muted {
+            color: var(--muted);
+        }
+
+        .stat-card {
+            padding: 1.1rem 1.2rem;
+            height: 100%;
+        }
+
+        .stat-label {
+            color: var(--muted);
+            font-size: 0.82rem;
+            margin-bottom: 0.35rem;
+        }
+
+        .stat-value {
+            font-size: 1.9rem;
+            font-weight: 800;
+            line-height: 1;
+            margin-bottom: 0.35rem;
+        }
+
+        .soft-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.35rem;
+            padding: 0.45rem 0.78rem;
+            border-radius: 999px;
+            font-size: 0.8rem;
+            font-weight: 700;
+        }
+
+        .soft-primary {
+            background: var(--primary-soft);
+            color: var(--primary);
+        }
+
+        .soft-success {
+            background: var(--success-soft);
+            color: #15803d;
+        }
+
+        .soft-warning {
+            background: var(--warning-soft);
+            color: #b45309;
+        }
+
+        .soft-danger {
+            background: var(--danger-soft);
+            color: #dc2626;
+        }
+
+        .section-card {
+            padding: 1.25rem;
+        }
+
+        .filter-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 0.9rem;
+        }
+
+        .form-control,
+        .form-select,
+        .form-check-input,
+        textarea {
+            border-radius: 16px !important;
+        }
+
+        .form-control,
+        .form-select,
+        textarea {
+            min-height: 48px;
+            border-color: rgba(148, 163, 184, 0.42);
+            box-shadow: none !important;
+        }
+
+        .form-control:focus,
+        .form-select:focus,
+        textarea:focus {
+            border-color: rgba(37, 99, 235, 0.55);
+        }
+
+        .task-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 1rem;
+        }
+
+        .task-card {
+            padding: 1rem;
+            cursor: pointer;
+            transition: transform .16s ease, box-shadow .16s ease, border-color .16s ease;
+        }
+
+        .task-card:hover {
+            transform: translateY(-2px);
+            border-color: rgba(37, 99, 235, 0.24);
+            box-shadow: 0 24px 40px rgba(15, 23, 42, 0.10);
+        }
+
+        .task-title {
+            font-weight: 700;
+            font-size: 1.02rem;
+            margin-bottom: 0.45rem;
+        }
+
+        .task-meta {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5rem;
+            margin-bottom: 0.85rem;
+        }
+
+        .task-footer {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 0.75rem;
+        }
+
+        .task-actions {
+            display: flex;
+            gap: 0.45rem;
+            flex-wrap: wrap;
+        }
+
+        .empty-state {
+            padding: 2.5rem 1.25rem;
+            text-align: center;
+            color: var(--muted);
+        }
+
+        .overlay {
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.34);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+            z-index: 60;
+        }
+
+        .modal-card {
+            width: min(100%, 1080px);
+            max-height: calc(100vh - 2rem);
+            overflow: auto;
+            padding: 1.25rem;
+        }
+
+        .drawer-wrap {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            justify-content: flex-end;
+            background: rgba(15, 23, 42, 0.28);
+            z-index: 70;
+        }
+
+        .drawer-card {
+            width: min(100%, 480px);
+            height: 100%;
+            overflow-y: auto;
+            border-radius: 0;
+            padding: 1.25rem;
+        }
+
+        .list-inline-grid {
+            display: grid;
+            gap: 0.75rem;
+        }
+
+        .mini-panel {
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+            border-radius: 18px;
+            padding: 0.9rem;
+        }
+
+        .log-item {
+            border-left: 3px solid rgba(37, 99, 235, 0.28);
+            padding-left: 0.85rem;
+        }
+
+        .btn {
+            border-radius: 14px;
+            font-weight: 600;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #2563eb, #3b82f6);
+            border: none;
+        }
+
+        .btn-soft {
+            background: var(--surface-soft);
+            border: 1px solid var(--border);
+        }
+
+        .loading-layer {
+            position: fixed;
+            inset: 0;
+            background: rgba(255, 255, 255, 0.72);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            z-index: 90;
+            backdrop-filter: blur(3px);
+        }
+
+        @media (max-width: 991px) {
+            .hero {
+                padding: 1.25rem;
+            }
+
+            .section-card {
+                padding: 1rem;
+            }
+
+            .shell-nav .container {
+                padding-right: calc(var(--bs-gutter-x, 1.5rem) * .5);
+            }
+        }
+
+        .app-shell.app-shell--single {
+            grid-template-columns: minmax(0, 1fr) !important;
+            gap: 0;
+        }
+
+        .app-shell.app-shell--single>#app {
+            min-width: 0;
+            width: 100%;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="app-shell app-shell--single" id="appShell">
+
+        <div id="app">
+            <main class="container pb-5">
+                <section class="hero">
+                    <div class="d-flex flex-column flex-lg-row align-items-lg-center justify-content-between gap-3">
+                        <div>
+                            <div class="text-uppercase small fw-bold text-primary mb-2">ProgramHub / Tek Sayfa Çalışma
+                                Alanı
+                            </div>
+                            <h1>Görevlerini tek ekranda yönet.</h1>
+                            <p class="mb-0">Yeni görev oluştur, detaylarını yan panelde incele, kategori ve kişi
+                                listelerini
+                                modal üzerinden yönet, ilerleme adımlarını kaydet.</p>
+                        </div>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="soft-badge soft-primary">Bugün: [[ todayLabel ]]</span>
+                            <span class="soft-badge soft-success">[[ stats.people || 0 ]] kişi</span>
+                            <span class="soft-badge soft-warning">[[ stats.categories || 0 ]] kategori</span>
+                        </div>
+                    </div>
+                </section>
+
+                <div v-if="error" class="alert alert-danger border-0">[[ error ]]</div>
+
+                <section class="mb-4">
+                    <div class="row g-3">
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-label">Toplam Görev</div>
+                                <div class="stat-value">[[ stats.total || 0 ]]</div>
+                                <div class="muted small">Tüm kayıtların toplamı</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-label">Açık Görev</div>
+                                <div class="stat-value">[[ stats.open || 0 ]]</div>
+                                <div class="muted small">Devam eden işler</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-label">Tamamlanan</div>
+                                <div class="stat-value">[[ stats.completed || 0 ]]</div>
+                                <div class="muted small">Biten görevler</div>
+                            </div>
+                        </div>
+                        <div class="col-md-6 col-xl-3">
+                            <div class="stat-card">
+                                <div class="stat-label">Geciken</div>
+                                <div class="stat-value">[[ stats.overdue || 0 ]]</div>
+                                <div class="muted small">Teslim tarihi geçmiş açık işler</div>
+                            </div>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card mb-4">
+                    <div
+                        class="d-flex flex-column flex-lg-row justify-content-between gap-3 mb-3 align-items-lg-center">
+                        <div>
+                            <h5 class="mb-1">Filtreler</h5>
+                            <div class="muted small">Görevleri hızlıca bulmak için arama ve filtre alanlarını kullan.
+                            </div>
+                        </div>
+                        <button class="btn btn-soft" type="button" @click="resetFilters">Filtreleri Temizle</button>
+                    </div>
+                    <div class="filter-grid">
+                        <div>
+                            <label class="form-label">Ara</label>
+                            <input v-model.trim="filters.search" class="form-control"
+                                placeholder="Başlık, detay veya kişi">
+                        </div>
+                        <div>
+                            <label class="form-label">Bölüm</label>
+                            <select v-model="filters.section" class="form-select">
+                                <option value="">Tümü</option>
+                                <option v-for="option in choices.sections" :key="option.value" :value="option.value">[[
+                                    option.label ]]</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Kategori</label>
+                            <select v-model="filters.category" class="form-select">
+                                <option value="">Tümü</option>
+                                <option v-for="category in categories" :key="category.id" :value="String(category.id)">
+                                    [[
+                                    category.name ]]</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label class="form-label">Durum</label>
+                            <select v-model="filters.completed" class="form-select">
+                                <option value="">Tümü</option>
+                                <option value="false">Açık</option>
+                                <option value="true">Tamamlandı</option>
+                            </select>
+                        </div>
+                    </div>
+                </section>
+
+                <section class="section-card">
+                    <div
+                        class="d-flex flex-column flex-lg-row justify-content-between gap-3 align-items-lg-center mb-4">
+                        <div>
+                            <h5 class="mb-1">Görev Listesi</h5>
+                            <div class="muted small">Bir göreve tıklayarak detay çekmecesini açabilir, ilerleme
+                                geçmişini
+                                görebilirsin.</div>
+                        </div>
+                        <span class="soft-badge soft-primary">[[ filteredTasks.length ]] kayıt gösteriliyor</span>
+                    </div>
+
+                    <div v-if="filteredTasks.length" class="task-grid">
+                        <article v-for="task in filteredTasks" :key="task.id" class="task-card"
+                            @click="openTaskDetail(task.id)">
+                            <div class="d-flex justify-content-between align-items-start gap-3 mb-2">
+                                <div>
+                                    <div class="task-title">[[ task.title ]]</div>
+                                    <div class="muted small">[[ task.plan_date_label ]] · [[ task.weekday || 'Gün yok'
+                                        ]]
+                                    </div>
+                                </div>
+                                <span v-if="task.is_completed" class="soft-badge soft-success">Tamamlandı</span>
+                                <span v-else class="soft-badge soft-warning">Açık</span>
+                            </div>
+
+                            <div class="task-meta">
+                                <span class="soft-badge soft-primary">[[ task.section_display ]]</span>
+                                <span class="soft-badge soft-primary">[[ task.priority_display ]]</span>
+                                <span v-if="task.category_name" class="soft-badge soft-success">[[ task.category_name
+                                    ]]</span>
+                            </div>
+
+                            <p class="muted small mb-3">[[ task.details || 'Henüz detay girilmemiş.' ]]</p>
+
+                            <div class="task-footer">
+                                <div class="small muted">
+                                    <div><strong>İş Alan:</strong> [[ task.worker_name || '—' ]]</div>
+                                </div>
+                                <div class="task-actions">
+                                    <button type="button" class="btn btn-sm btn-soft"
+                                        @click.stop="quickAddLog(task)">İlerleme Kaydet</button>
+                                    <button type="button" class="btn btn-sm btn-success" :disabled="task.is_completed"
+                                        @click.stop="markTaskDone(task)">Yapıldı</button>
+                                    <button type="button" class="btn btn-sm btn-soft"
+                                        @click.stop="openTaskModal(task)">Düzenle</button>
+                                    <button type="button" class="btn btn-sm btn-outline-danger"
+                                        @click.stop="deleteTask(task)">Sil</button>
+                                </div>
+                            </div>
+                        </article>
+                    </div>
+                    <div v-else class="empty-state">Henüz eşleşen görev bulunamadı. Filtreleri temizleyebilir veya yeni
+                        görev ekleyebilirsin.</div>
+                </section>
+            </main>
+
+            <div v-if="ui.detailOpen && selectedTask" class="drawer-wrap" @click.self="closeTaskDetail">
+                <aside class="drawer-card">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-3">
+                        <div>
+                            <div class="soft-badge"
+                                :class="selectedTask.is_completed ? 'soft-success' : 'soft-warning'">[[
+                                selectedTask.is_completed ? 'Tamamlandı' : 'Açık' ]]</div>
+                            <h4 class="mt-3 mb-1">[[ selectedTask.title ]]</h4>
+                            <div class="muted small">[[ selectedTask.plan_date_label ]] · [[
+                                selectedTask.section_display ]]
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-soft" @click="closeTaskDetail">Kapat</button>
+                    </div>
+
+                    <div class="list-inline-grid mb-4">
+                        <div class="mini-panel"><strong>Kategori:</strong> [[ selectedTask.category_name || 'Yok' ]]
+                        </div>
+                        <div class="mini-panel"><strong>İş Alan:</strong> [[ selectedTask.worker_name || 'Yok' ]]</div>
+                        <div class="mini-panel"><strong>Öncelik:</strong> [[ selectedTask.priority_display ]]</div>
+                        <div class="mini-panel"><strong>Son Tarih:</strong> [[ selectedTask.due_date_label ||
+                            'Belirtilmedi'
+                            ]]</div>
+                    </div>
+
+                    <div class="mb-4">
+                        <h6>Detay</h6>
+                        <p class="muted mb-0">[[ selectedTask.details || 'Detay girilmemiş.' ]]</p>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center mb-3">
+                        <h6 class="mb-0">İlerleme Geçmişi</h6>
+                        <span class="soft-badge soft-primary">[[ selectedTask.progress_logs ?
+                            selectedTask.progress_logs.length : 0 ]] adım</span>
+                    </div>
+
+                    <div class="mini-panel mb-3">
+                        <label class="form-label">Yeni ilerleme adımı</label>
+                        <textarea ref="logInput" v-model="logForm.note" rows="3" class="form-control"
+                            placeholder="Bugün ne yapıldı?"></textarea>
+                        <button type="button" class="btn btn-primary mt-3" @click="addLog">İlerleme Kaydet</button>
+                    </div>
+
+                    <div v-if="selectedTask.progress_logs && selectedTask.progress_logs.length"
+                        class="list-inline-grid">
+                        <div v-for="log in selectedTask.progress_logs" :key="log.id" class="log-item">
+                            <div class="fw-semibold">[[ log.created_at_label ]]</div>
+                            <div class="muted">[[ log.note ]]</div>
+                        </div>
+                    </div>
+                    <div v-else class="empty-state py-3">Henüz ilerleme kaydı yok.</div>
+                </aside>
+            </div>
+
+            <div v-if="ui.taskModal" class="overlay" @click.self="closeTaskModal">
+                <div class="modal-card">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h4 class="mb-1">[[ taskForm.id ? 'Görevi Düzenle' : 'Yeni Görev Oluştur' ]]</h4>
+                            <div class="muted small">Plan tarihi varsayılan olarak bugünün tarihiyle gelir.</div>
+                        </div>
+                        <button class="btn btn-soft" type="button" @click="closeTaskModal">Kapat</button>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6">
+                            <label class="form-label">Görev Başlığı</label>
+                            <input v-model.trim="taskForm.title" class="form-control"
+                                placeholder="Görev başlığını yazın">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Plan Tarihi</label>
+                            <input v-model="taskForm.plan_date" type="date" class="form-control">
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Kategori</label>
+                            <select v-model="taskForm.category_id" class="form-select">
+                                <option value="">Kategori seçin</option>
+                                <option v-for="category in categories" :key="category.id" :value="String(category.id)">
+                                    [[
+                                    category.name ]]</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Bölüm</label>
+                            <select v-model="taskForm.section" class="form-select">
+                                <option v-for="option in choices.sections" :key="option.value" :value="option.value">[[
+                                    option.label ]]</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">İş Alan</label>
+                            <select v-model="taskForm.worker_id" class="form-select">
+                                <option value="">İş alan seçin</option>
+                                <option v-for="person in workerPeople" :key="person.id" :value="String(person.id)">[[
+                                    person.name ]]</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">İş Alan Rolü</label>
+                            <input class="form-control" :value="selectedWorkerRoleName || 'Rol yok'" readonly>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Öncelik</label>
+                            <select v-model="taskForm.priority" class="form-select">
+                                <option v-for="option in choices.priorities" :key="option.value" :value="option.value">
+                                    [[
+                                    option.label ]]</option>
+                            </select>
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label">Son Tarih</label>
+                            <input v-model="taskForm.due_date" type="date" class="form-control">
+                        </div>
+                        <div class="col-12">
+                            <label class="form-label">Açıklama</label>
+                            <textarea v-model.trim="taskForm.details" rows="4" class="form-control"
+                                placeholder="Kısa not, yapılacak adımlar veya açıklama"></textarea>
+                        </div>
+                        <div class="col-12 d-flex align-items-center gap-2">
+                            <input id="task-completed" v-model="taskForm.is_completed" type="checkbox"
+                                class="form-check-input">
+                            <label for="task-completed" class="form-check-label">Görev tamamlandı olarak
+                                işaretlensin</label>
+                        </div>
+                    </div>
+
+                    <div class="d-flex gap-2 mt-4">
+                        <button class="btn btn-primary" type="button" @click="saveTask">Kaydet</button>
+                        <button class="btn btn-soft" type="button" @click="closeTaskModal">İptal</button>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="ui.categoryModal" class="overlay" @click.self="closeCategoryModal">
+                <div class="modal-card">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h4 class="mb-1">Kategori Yönetimi</h4>
+                            <div class="muted small">Aynı modal içinde ekle, düzenle ve sil işlemleri yapılır.</div>
+                        </div>
+                        <button class="btn btn-soft" type="button" @click="closeCategoryModal">Kapat</button>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="mini-panel h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">[[ categoryForm.id ? 'Kategoriyi Güncelle' : 'Yeni Kategori' ]]
+                                    </h6>
+                                    <button v-if="categoryForm.id" type="button" class="btn btn-sm btn-soft"
+                                        @click="resetCategoryForm">Temizle</button>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ad</label>
+                                    <input v-model.trim="categoryForm.name" class="form-control"
+                                        placeholder="Kategori adı">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Üst Kategori</label>
+                                    <select v-model="categoryForm.parent_id" class="form-select">
+                                        <option value="">Yok</option>
+                                        <option v-for="category in categories" :key="category.id"
+                                            :value="String(category.id)" :disabled="category.id === categoryForm.id">[[
+                                            category.name ]]</option>
+                                    </select>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Sıra</label>
+                                    <input v-model.number="categoryForm.order" type="number" min="0"
+                                        class="form-control">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Açıklama</label>
+                                    <textarea v-model.trim="categoryForm.description" rows="3"
+                                        class="form-control"></textarea>
+                                </div>
+                                <button type="button" class="btn btn-primary w-100"
+                                    @click="saveCategory">Kaydet</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="d-flex flex-wrap gap-2 mb-3">
+                                <span class="soft-badge soft-primary">Toplam [[ categoryStats.total || 0 ]]
+                                    kategori</span>
+                                <span class="soft-badge soft-success">Ana [[ categoryStats.root || 0 ]]</span>
+                                <span class="soft-badge soft-warning">Alt [[ categoryStats.child || 0 ]]</span>
+                            </div>
+                            <div class="list-inline-grid">
+                                <div v-for="category in categories" :key="category.id"
+                                    class="mini-panel d-flex flex-column flex-md-row justify-content-between gap-3">
+                                    <div>
+                                        <div class="fw-semibold">[[ category.name ]]</div>
+                                        <div class="muted small">[[ category.description || 'Açıklama yok' ]]</div>
+                                        <div class="muted small mt-1">Üst kategori: [[ category.parent_name || 'Yok' ]]
+                                            ·
+                                            Görev: [[ category.task_count ]] · Alt kategori: [[ category.child_count ]]
+                                        </div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-self-md-start">
+                                        <button type="button" class="btn btn-sm btn-soft"
+                                            @click="editCategory(category)">Düzenle</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            @click="deleteCategory(category)">Sil</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="ui.roleModal" class="overlay" @click.self="closeRoleModal">
+                <div class="modal-card">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h4 class="mb-1">Rol Yöneticisi</h4>
+                            <div class="muted small">Sistem rollerini burada ekleyebilir, güncelleyebilir ve
+                                silebilirsin.
+                            </div>
+                        </div>
+                        <button class="btn btn-soft" type="button" @click="closeRoleModal">Kapat</button>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="mini-panel h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">[[ roleForm.id ? 'Rolü Güncelle' : 'Yeni Rol' ]]</h6>
+                                    <button v-if="roleForm.id" type="button" class="btn btn-sm btn-soft"
+                                        @click="resetRoleForm">Temizle</button>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Rol Adı</label>
+                                    <input v-model.trim="roleForm.name" class="form-control"
+                                        placeholder="Örn: Geliştirici">
+                                </div>
+                                <button type="button" class="btn btn-primary w-100" @click="saveRole">Kaydet</button>
+                            </div>
+                        </div>
+
+                        <div class="col-lg-8">
+                            <div class="mini-panel mb-3 d-inline-flex align-items-center gap-2">
+                                <strong>Toplam Rol:</strong> [[ roles.length ]]
+                            </div>
+                            <div class="list-inline-grid">
+                                <div v-for="role in roles" :key="role.id"
+                                    class="mini-panel d-flex justify-content-between gap-3">
+                                    <div>
+                                        <div class="fw-semibold">[[ role.name ]]</div>
+                                        <div class="muted small">Bağlı kişi: [[ role.people_count || 0 ]]</div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-self-start">
+                                        <button type="button" class="btn btn-sm btn-soft"
+                                            @click="editRole(role)">Düzenle</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            @click="deleteRole(role)">Sil</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="!roles.length" class="empty-state py-3">Henüz rol yok. Önce rol ekleyin.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="ui.peopleModal" class="overlay" @click.self="closePeopleModal">
+                <div class="modal-card">
+                    <div class="d-flex justify-content-between align-items-start gap-3 mb-4">
+                        <div>
+                            <h4 class="mb-1">Kişi Yöneticisi</h4>
+                            <div class="muted small">Kişi rollerini ve kayıtlarını tek ekrandan
+                                yönetebilirsin.
+                            </div>
+                        </div>
+                        <button class="btn btn-soft" type="button" @click="closePeopleModal">Kapat</button>
+                    </div>
+
+                    <div class="row g-4">
+                        <div class="col-lg-4">
+                            <div class="mini-panel h-100">
+                                <div class="d-flex justify-content-between align-items-center mb-3">
+                                    <h6 class="mb-0">[[ personForm.id ? 'Kişiyi Güncelle' : 'Yeni Kişi' ]]</h6>
+                                    <button v-if="personForm.id" type="button" class="btn btn-sm btn-soft"
+                                        @click="resetPersonForm">Temizle</button>
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Ad Soyad</label>
+                                    <input v-model.trim="personForm.name" class="form-control" placeholder="Kişi adı">
+                                </div>
+                                <div class="mb-3">
+                                    <label class="form-label">Rol</label>
+                                    <select v-model="personForm.role_id" class="form-select">
+                                        <option value="">Rol seçin</option>
+                                        <option v-for="role in roles" :key="role.id" :value="String(role.id)">[[
+                                            role.name ]]</option>
+                                    </select>
+                                </div>
+                                <button type="button" class="btn btn-primary w-100" @click="savePerson">Kaydet</button>
+                            </div>
+                        </div>
+                        <div class="col-lg-8">
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <div class="mini-panel">
+                                        <div class="muted small">Toplam Kişi</div>
+                                        <div class="fw-bold fs-5">[[ roleStats.total ]]</div>
+                                    </div>
+                                </div>
+                                <div class="col-md-6">
+                                    <div class="mini-panel">
+                                        <div class="muted small">Toplam Rol</div>
+                                        <div class="fw-bold fs-5">[[ roles.length ]]</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="row g-3 mb-3">
+                                <div class="col-md-6">
+                                    <label class="form-label">Kişi Ara</label>
+                                    <input v-model.trim="peopleFilters.search" class="form-control"
+                                        placeholder="İsim ara">
+                                </div>
+                                <div class="col-md-6">
+                                    <label class="form-label">Role Göre Filtrele</label>
+                                    <select v-model="peopleFilters.role_id" class="form-select">
+                                        <option value="">Tüm Roller</option>
+                                        <option v-for="role in roles" :key="role.id" :value="String(role.id)">[[
+                                            role.name ]]</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="list-inline-grid">
+                                <div v-for="person in filteredPeople" :key="person.id"
+                                    class="mini-panel d-flex justify-content-between gap-3">
+                                    <div>
+                                        <div class="fw-semibold">[[ person.name ]]</div>
+                                        <div class="muted small">[[ person.role_name || 'Rol yok' ]]</div>
+                                    </div>
+                                    <div class="d-flex gap-2 align-self-start flex-wrap justify-content-end">
+                                        <select class="form-select form-select-sm" style="min-width: 150px;"
+                                            :value="person.role_id ? String(person.role_id) : ''"
+                                            @change="updatePersonRole(person, $event.target.value)">
+                                            <option value="">Rol seçin</option>
+                                            <option v-for="role in roles" :key="role.id" :value="String(role.id)">[[
+                                                role.name ]]</option>
+                                        </select>
+                                        <button type="button" class="btn btn-sm btn-soft"
+                                            @click="editPerson(person)">Düzenle</button>
+                                        <button type="button" class="btn btn-sm btn-outline-danger"
+                                            @click="deletePerson(person)">Sil</button>
+                                    </div>
+                                </div>
+                            </div>
+                            <div v-if="!filteredPeople.length" class="empty-state py-3">Filtreye uyan kişi yok.</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div v-if="loading" class="loading-layer">
+                <div class="text-center">
+                    <div class="spinner-border text-primary" role="status"></div>
+                    <div class="mt-3 muted">Veriler yükleniyor…</div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <script>
+        const { createApp } = Vue;
+
+        createApp({
+            delimiters: ['[[', ']]'],
+            data() {
+                return {
+                    loading: true,
+                    error: '',
+                    apiBasePath: '',
+                    today: '',
+                    stats: {},
+                    categoryStats: {},
+                    choices: { sections: [], priorities: [] },
+                    tasks: [],
+                    categories: [],
+                    roles: [],
+                    people: [],
+                    peopleFilters: {
+                        search: '',
+                        role_id: '',
+                    },
+                    filters: {
+                        search: '',
+                        section: '',
+                        category: '',
+                        completed: '',
+                    },
+                    ui: {
+                        taskModal: false,
+                        categoryModal: false,
+                        roleModal: false,
+                        peopleModal: false,
+                        detailOpen: false,
+                    },
+                    taskForm: {},
+                    categoryForm: {},
+                    roleForm: {},
+                    personForm: {},
+                    selectedTask: null,
+                    logForm: { note: '' },
+                };
+            },
+            computed: {
+                todayLabel() {
+                    if (!this.today) return '';
+                    return new Date(this.today).toLocaleDateString('tr-TR');
+                },
+                filteredTasks() {
+                    const search = this.filters.search.toLowerCase();
+                    return this.tasks.filter((task) => {
+                        const searchMatch = !search || [
+                            task.title,
+                            task.details,
+                            task.category_name,
+                            task.worker_name,
+                        ].some((value) => (value || '').toLowerCase().includes(search));
+
+                        const sectionMatch = !this.filters.section || task.section === this.filters.section;
+                        const categoryMatch = !this.filters.category || String(task.category_id || '') === this.filters.category;
+                        const completedMatch = !this.filters.completed || String(task.is_completed) === this.filters.completed;
+                        return searchMatch && sectionMatch && categoryMatch && completedMatch;
+                    });
+                },
+                workerPeople() {
+                    return this.people;
+                },
+                selectedWorkerRoleName() {
+                    if (!this.taskForm.worker_id) return '';
+                    const person = this.people.find((item) => String(item.id) === String(this.taskForm.worker_id));
+                    return person ? person.role_name : '';
+                },
+                filteredPeople() {
+                    const search = this.peopleFilters.search.toLowerCase();
+                    const roleId = this.peopleFilters.role_id;
+                    return this.people.filter((person) => {
+                        const roleMatch = !roleId || String(person.role_id || '') === roleId;
+                        const searchMatch = !search || (person.name || '').toLowerCase().includes(search);
+                        return roleMatch && searchMatch;
+                    });
+                },
+                roleStats() {
+                    const total = this.people.length;
+                    return { total };
+                },
+            },
+            methods: {
+                defaultTaskForm() {
+                    return {
+                        id: null,
+                        title: '',
+                        details: '',
+                        plan_date: this.today || this.getTodayString(),
+                        due_date: '',
+                        section: 'YAPILMASI_PLANLANANLAR',
+                        priority: 'MEDIUM',
+                        category_id: '',
+                        worker_id: '',
+                        owner_group: '',
+                        is_completed: false,
+                    };
+                },
+                defaultCategoryForm() {
+                    return { id: null, name: '', parent_id: '', description: '', order: 0 };
+                },
+                defaultRoleForm() {
+                    return { id: null, name: '' };
+                },
+                defaultPersonForm() {
+                    return { id: null, name: '', role_id: '' };
+                },
+                getTodayString() {
+                    const today = new Date();
+                    return today.toISOString().slice(0, 10);
+                },
+                getCsrfToken() {
+                    const cookie = document.cookie.split('; ').find((row) => row.startsWith('csrftoken='));
+                    return cookie ? decodeURIComponent(cookie.split('=')[1]) : '';
+                },
+                getAppBasePath() {
+                    const pathname = window.location.pathname || '/';
+                    return pathname.endsWith('/') ? pathname : `${pathname}/`;
+                },
+                buildApiUrl(endpoint) {
+                    const cleanEndpoint = String(endpoint || '').replace(/^\/+/, '');
+                    const basePath = this.apiBasePath || this.getAppBasePath();
+                    return `${basePath}${cleanEndpoint}`;
+                },
+                async request(endpoint, options = {}) {
+                    const config = {
+                        method: 'GET',
+                        credentials: 'same-origin',
+                        headers: {},
+                        ...options,
+                    };
+
+                    if (config.method !== 'GET' && config.method !== 'HEAD') {
+                        config.headers['Content-Type'] = 'application/json';
+                        config.headers['X-CSRFToken'] = this.getCsrfToken();
+                    }
+
+                    const response = await fetch(this.buildApiUrl(endpoint), config);
+                    let data = {};
+                    try {
+                        data = await response.json();
+                    } catch (error) {
+                        data = {};
+                    }
+
+                    if (!response.ok) {
+                        throw new Error(data.error || 'İşlem sırasında bir hata oluştu.');
+                    }
+                    return data;
+                },
+                async loadBootstrap() {
+                    this.loading = true;
+                    this.error = '';
+                    try {
+                        const data = await this.request('api/bootstrap/');
+                        this.today = data.today;
+                        this.tasks = data.tasks || [];
+                        this.categories = data.categories || [];
+                        this.roles = data.roles || [];
+                        this.people = data.people || [];
+                        this.stats = data.stats || {};
+                        this.categoryStats = data.category_stats || {};
+                        this.choices = data.choices || this.choices;
+                        this.taskForm = this.defaultTaskForm();
+                        this.categoryForm = this.defaultCategoryForm();
+                        this.roleForm = this.defaultRoleForm();
+                        this.personForm = this.defaultPersonForm();
+                    } catch (error) {
+                        this.error = error.message;
+                    } finally {
+                        this.loading = false;
+                    }
+                },
+                async refreshCollections(reloadSelected = true) {
+                    const selectedId = this.selectedTask ? this.selectedTask.id : null;
+                    const data = await this.request('api/bootstrap/');
+                    this.today = data.today;
+                    this.tasks = data.tasks || [];
+                    this.categories = data.categories || [];
+                    this.roles = data.roles || [];
+                    this.people = data.people || [];
+                    this.stats = data.stats || {};
+                    this.categoryStats = data.category_stats || {};
+                    this.choices = data.choices || this.choices;
+                    if (selectedId && reloadSelected) {
+                        const exists = this.tasks.find((task) => task.id === selectedId);
+                        if (exists) {
+                            await this.openTaskDetail(selectedId, false);
+                        } else {
+                            this.closeTaskDetail();
+                        }
+                    }
+                },
+                resetFilters() {
+                    this.filters = { search: '', section: '', category: '', completed: '' };
+                },
+                openTaskModal(task = null) {
+                    if (task) {
+                        this.taskForm = {
+                            id: task.id,
+                            title: task.title,
+                            details: task.details || '',
+                            plan_date: task.plan_date || this.today || this.getTodayString(),
+                            due_date: task.due_date || '',
+                            section: task.section,
+                            priority: task.priority,
+                            category_id: task.category_id ? String(task.category_id) : '',
+                            worker_id: task.worker_id ? String(task.worker_id) : '',
+                            owner_group: task.owner_group || '',
+                            is_completed: !!task.is_completed,
+                        };
+                    } else {
+                        this.taskForm = this.defaultTaskForm();
+                    }
+                    this.ui.taskModal = true;
+                },
+                closeTaskModal() {
+                    this.ui.taskModal = false;
+                    this.taskForm = this.defaultTaskForm();
+                },
+                async saveTask() {
+                    try {
+                        this.error = '';
+                        const endpoint = this.taskForm.id ? `api/tasks/${this.taskForm.id}/` : 'api/tasks/';
+                        const method = this.taskForm.id ? 'PATCH' : 'POST';
+                        const payload = {
+                            ...this.taskForm,
+                            category_id: this.taskForm.category_id || null,
+                            responsible_id: null,
+                            worker_id: this.taskForm.worker_id || null,
+                            plan_date: this.taskForm.plan_date || this.today || this.getTodayString(),
+                            due_date: this.taskForm.due_date || null,
+                        };
+                        await this.request(endpoint, { method, body: JSON.stringify(payload) });
+                        await this.refreshCollections(false);
+                        this.closeTaskModal();
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async openTaskDetail(taskId, openDrawer = true) {
+                    try {
+                        this.error = '';
+                        const data = await this.request(`api/tasks/${taskId}/`);
+                        this.selectedTask = data.task;
+                        if (openDrawer) this.ui.detailOpen = true;
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                closeTaskDetail() {
+                    this.ui.detailOpen = false;
+                    this.selectedTask = null;
+                    this.logForm.note = '';
+                },
+                async toggleTask(task) {
+                    try {
+                        const payload = {
+                            title: task.title,
+                            details: task.details,
+                            plan_date: task.plan_date,
+                            due_date: task.due_date,
+                            section: task.section,
+                            priority: task.priority,
+                            category_id: task.category_id || null,
+                            responsible_id: null,
+                            worker_id: task.worker_id || null,
+                            owner_group: task.owner_group || '',
+                            is_completed: !task.is_completed,
+                        };
+                        await this.request(`api/tasks/${task.id}/`, { method: 'PATCH', body: JSON.stringify(payload) });
+                        await this.refreshCollections();
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async quickAddLog(task) {
+                    await this.openTaskDetail(task.id, true);
+                    this.logForm.note = '';
+                    await this.$nextTick();
+                    const logInput = this.$refs.logInput;
+                    if (logInput && typeof logInput.focus === 'function') {
+                        logInput.focus();
+                    }
+                },
+                async markTaskDone(task) {
+                    if (task.is_completed) return;
+                    try {
+                        const payload = {
+                            title: task.title,
+                            details: task.details,
+                            plan_date: task.plan_date,
+                            due_date: task.due_date,
+                            section: task.section,
+                            priority: task.priority,
+                            category_id: task.category_id || null,
+                            responsible_id: null,
+                            worker_id: task.worker_id || null,
+                            owner_group: task.owner_group || '',
+                            is_completed: true,
+                        };
+                        await this.request(`api/tasks/${task.id}/`, {
+                            method: 'PATCH',
+                            body: JSON.stringify(payload),
+                        });
+                        await this.refreshCollections();
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async deleteTask(task) {
+                    if (!confirm(`"${task.title}" görevini silmek istediğine emin misin?`)) return;
+                    try {
+                        await this.request(`api/tasks/${task.id}/`, { method: 'DELETE' });
+                        await this.refreshCollections(false);
+                        if (this.selectedTask && this.selectedTask.id === task.id) {
+                            this.closeTaskDetail();
+                        }
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async addLog() {
+                    if (!this.selectedTask || !this.logForm.note.trim()) return;
+                    try {
+                        const data = await this.request(`api/tasks/${this.selectedTask.id}/logs/`, {
+                            method: 'POST',
+                            body: JSON.stringify({ note: this.logForm.note.trim() }),
+                        });
+                        this.selectedTask = data.task;
+                        this.logForm.note = '';
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                openCategoryModal() {
+                    this.resetCategoryForm();
+                    this.ui.categoryModal = true;
+                },
+                closeCategoryModal() {
+                    this.ui.categoryModal = false;
+                    this.resetCategoryForm();
+                },
+                resetCategoryForm() {
+                    this.categoryForm = this.defaultCategoryForm();
+                },
+                editCategory(category) {
+                    this.ui.categoryModal = true;
+                    this.categoryForm = {
+                        id: category.id,
+                        name: category.name,
+                        parent_id: category.parent_id ? String(category.parent_id) : '',
+                        description: category.description || '',
+                        order: category.order || 0,
+                    };
+                },
+                async saveCategory() {
+                    try {
+                        const endpoint = this.categoryForm.id ? `api/categories/${this.categoryForm.id}/` : 'api/categories/';
+                        const method = this.categoryForm.id ? 'PATCH' : 'POST';
+                        await this.request(endpoint, {
+                            method,
+                            body: JSON.stringify({
+                                ...this.categoryForm,
+                                parent_id: this.categoryForm.parent_id || null,
+                            }),
+                        });
+                        await this.refreshCollections(false);
+                        this.resetCategoryForm();
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async deleteCategory(category) {
+                    if (!confirm(`"${category.name}" kategorisini silmek istiyor musun?`)) return;
+                    try {
+                        await this.request(`api/categories/${category.id}/`, { method: 'DELETE' });
+                        await this.refreshCollections(false);
+                        if (this.categoryForm.id === category.id) {
+                            this.resetCategoryForm();
+                        }
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                openPeopleModal() {
+                    this.resetPersonForm();
+                    this.ui.peopleModal = true;
+                },
+                closePeopleModal() {
+                    this.ui.peopleModal = false;
+                    this.resetPersonForm();
+                },
+                resetPersonForm() {
+                    this.personForm = this.defaultPersonForm();
+                },
+                editPerson(person) {
+                    this.ui.peopleModal = true;
+                    this.personForm = {
+                        id: person.id,
+                        name: person.name,
+                        role_id: person.role_id ? String(person.role_id) : '',
+                    };
+                },
+                async updatePersonRole(person, newRoleId) {
+                    if (!newRoleId || String(newRoleId) === String(person.role_id || '')) return;
+                    try {
+                        await this.request(`api/people/${person.id}/`, {
+                            method: 'PATCH',
+                            body: JSON.stringify({ name: person.name, role_id: Number(newRoleId) }),
+                        });
+                        await this.refreshCollections(false);
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async savePerson() {
+                    try {
+                        const endpoint = this.personForm.id ? `api/people/${this.personForm.id}/` : 'api/people/';
+                        const method = this.personForm.id ? 'PATCH' : 'POST';
+                        await this.request(endpoint, {
+                            method,
+                            body: JSON.stringify({
+                                ...this.personForm,
+                                role_id: this.personForm.role_id ? Number(this.personForm.role_id) : null,
+                            }),
+                        });
+                        await this.refreshCollections(false);
+                        this.resetPersonForm();
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                openRoleModal() {
+                    this.resetRoleForm();
+                    this.ui.roleModal = true;
+                },
+                closeRoleModal() {
+                    this.ui.roleModal = false;
+                    this.resetRoleForm();
+                },
+                resetRoleForm() {
+                    this.roleForm = this.defaultRoleForm();
+                },
+                editRole(role) {
+                    this.ui.roleModal = true;
+                    this.roleForm = { id: role.id, name: role.name };
+                },
+                async saveRole() {
+                    try {
+                        const endpoint = this.roleForm.id ? `api/roles/${this.roleForm.id}/` : 'api/roles/';
+                        const method = this.roleForm.id ? 'PATCH' : 'POST';
+                        await this.request(endpoint, {
+                            method,
+                            body: JSON.stringify({ name: this.roleForm.name }),
+                        });
+                        await this.refreshCollections(false);
+                        this.resetRoleForm();
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async deleteRole(role) {
+                    if (!confirm(`"${role.name}" rolünü silmek istiyor musun?`)) return;
+                    try {
+                        await this.request(`api/roles/${role.id}/`, { method: 'DELETE' });
+                        await this.refreshCollections(false);
+                        if (this.roleForm.id === role.id) {
+                            this.resetRoleForm();
+                        }
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+                async deletePerson(person) {
+                    if (!confirm(`"${person.name}" kişisini silmek istiyor musun?`)) return;
+                    try {
+                        await this.request(`api/people/${person.id}/`, { method: 'DELETE' });
+                        await this.refreshCollections(false);
+                        if (this.personForm.id === person.id) {
+                            this.resetPersonForm();
+                        }
+                    } catch (error) {
+                        this.error = error.message;
+                    }
+                },
+            },
+            mounted() {
+                if (!window.location.pathname.endsWith('/')) {
+                    const nextUrl = `${window.location.pathname}/${window.location.search}${window.location.hash}`;
+                    window.location.replace(nextUrl);
+                    return;
+                }
+                this.apiBasePath = this.getAppBasePath();
+                this.loadBootstrap();
+            },
+        }).mount('#app');
+
+        // sidebar shell script externalized: /apps/tools/static/js/shared/sidebar-shell.js
+    </script>
+</body>
+
+</html>

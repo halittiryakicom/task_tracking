@@ -1,0 +1,25 @@
+{% extends 'base.html' %}
+{% block title %}Görev Sil | İş Takip{% endblock %}
+{% block page_heading %}Görevi Sil{% endblock %}
+{% block page_description %}
+Bu işlem geri alınamaz. Silmeden önce görevin gerçekten gereksiz olduğundan emin ol.
+{% endblock %}
+
+{% block content %}
+<div class="section-card p-4">
+    <div class="d-flex align-items-center gap-3 mb-3">
+        <span class="soft-badge soft-danger">Dikkat</span>
+        <h5 class="mb-0">Bu görevi silmek istediğine emin misin?</h5>
+    </div>
+    <p class="mini-text mb-3">Silinecek görev:</p>
+    <div class="surface p-3 mb-4">
+        <strong>{{ object.title }}</strong>
+        <div class="mini-text mt-2">{{ object.plan_date|date:'d.m.Y' }} · {{ object.get_section_display }}</div>
+    </div>
+    <form method="post">
+        {% csrf_token %}
+        <button class="btn btn-danger">Evet, sil</button>
+        <a href="{% url 'tracker:task_list' %}" class="btn btn-outline-secondary">İptal</a>
+    </form>
+</div>
+{% endblock %}

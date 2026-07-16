@@ -1,0 +1,67 @@
+{% url 'tracker:task_list' as task_list_url %}
+{% url 'tracker:category_manage' as category_manage_url %}
+{% url 'tracker:task_create' as task_create_url %}
+
+<div class="sb-mobile-bar">
+    <strong>İş Takip</strong>
+    <button class="sb-btn" id="mobileSidebarToggle" type="button" aria-label="Menüyü aç/kapat">☰</button>
+</div>
+
+<aside class="teacher-sidebar" id="teacherSidebar" aria-label="İş Takip menüsü">
+    <div class="sb-brand">
+        <span class="sb-brand__logo">IT</span>
+        <div class="sb-brand__text">
+            <h2 class="sb-brand__title">İş Takip</h2>
+            <p class="sb-brand__sub">Görev Yönetimi</p>
+        </div>
+    </div>
+
+    <div class="sb-top-actions">
+        <button class="sb-btn" id="desktopSidebarCollapse" type="button" title="Daralt / Genişlet">⇤</button>
+    </div>
+
+    <div class="sb-section-title">Menü</div>
+    <ul class="sb-menu">
+        {% if is_spa %}
+        <li><a class="sb-link is-active" href="/"><span class="sb-icon"><svg viewBox="0 0 24 24">
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                    </svg></span><span class="sb-label">Görevler</span></a></li>
+        <li><a class="sb-link" href="/kategoriler/"><span class="sb-icon"><svg viewBox="0 0 24 24">
+                        <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+                    </svg></span><span class="sb-label">Kategoriler</span></a></li>
+        {% else %}
+        <li><a class="sb-link {% if request.resolver_match.url_name == 'task_list' %}is-active{% endif %}"
+                href="{{ task_list_url }}"><span class="sb-icon"><svg viewBox="0 0 24 24">
+                        <line x1="8" y1="6" x2="21" y2="6" />
+                        <line x1="8" y1="12" x2="21" y2="12" />
+                        <line x1="8" y1="18" x2="21" y2="18" />
+                        <line x1="3" y1="6" x2="3.01" y2="6" />
+                        <line x1="3" y1="12" x2="3.01" y2="12" />
+                        <line x1="3" y1="18" x2="3.01" y2="18" />
+                    </svg></span><span class="sb-label">Görevler</span></a></li>
+        <li><a class="sb-link {% if request.resolver_match.url_name == 'category_manage' %}is-active{% endif %}"
+                href="{{ category_manage_url }}"><span class="sb-icon"><svg viewBox="0 0 24 24">
+                        <path d="M4 4h6v6H4zM14 4h6v6h-6zM4 14h6v6H4zM14 14h6v6h-6z" />
+                    </svg></span><span class="sb-label">Kategoriler</span></a></li>
+        <li><a class="sb-link {% if request.resolver_match.url_name == 'task_create' %}is-active{% endif %}"
+                href="{{ task_create_url }}"><span class="sb-icon"><svg viewBox="0 0 24 24">
+                        <circle cx="12" cy="12" r="9" />
+                        <line x1="12" y1="8" x2="12" y2="16" />
+                        <line x1="8" y1="12" x2="16" y2="12" />
+                    </svg></span><span class="sb-label">Yeni Görev</span></a></li>
+        {% endif %}
+    </ul>
+
+    <div class="sb-footer">
+        <ul class="sb-menu">
+            <li><a class="sb-link" href="/"><span class="sb-icon"><svg viewBox="0 0 24 24">
+                            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4M16 17l5-5-5-5M21 12H9" />
+                        </svg></span><span class="sb-label">Ana Sayfa</span></a></li>
+        </ul>
+    </div>
+</aside>

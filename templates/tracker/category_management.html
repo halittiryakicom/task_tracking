@@ -1,0 +1,154 @@
+{% extends 'base.html' %}
+{% block title %}Kategori Yönetimi | İş Takip{% endblock %}
+{% block page_heading %}Kategori Yönetimi{% endblock %}
+{% block page_description %}
+Görevlerini daha düzenli takip etmek için kategori ağacını oluştur, sadeleştir ve düzenle.
+{% endblock %}
+{% block page_actions %}
+<a href="{% url 'tracker:task_create' %}" class="btn btn-primary">+ Yeni Görev</a>
+{% endblock %}
+
+{% block content %}
+<div class="row g-3 mb-4">
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">Toplam Kategori</div>
+            <div class="stat-value">{{ category_stats.total }}</div>
+            <div class="stat-hint">Sistemde kayıtlı tüm kategoriler</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">Ana Kategori</div>
+            <div class="stat-value">{{ category_stats.root }}</div>
+            <div class="stat-hint">Üst kırılım olarak kullanılanlar</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">Alt Kategori</div>
+            <div class="stat-value">{{ category_stats.child }}</div>
+            <div class="stat-hint">Detay seviyesindeki kayıtlar</div>
+        </div>
+    </div>
+    <div class="col-md-6 col-xl-3">
+        <div class="stat-card">
+            <div class="stat-label">Bağlı Görev</div>
+            <div class="stat-value">{{ category_stats.linked_tasks }}</div>
+            <div class="stat-hint">Bir kategoriye bağlanmış görevler</div>
+        </div>
+    </div>
+</div>
+
+<div class="row g-4">
+    <div class="col-lg-4">
+        <div class="section-card p-4 h-100">
+            <div class="mb-4">
+                <h5 class="mb-0">Kategori Ekle</h5>
+                <p class="mini-text mb-0 mt-2">Yeni kategori oluştur, istersen üst kategori ile ilişkilendir.</p>
+            </div>
+            <form method="post" novalidate>
+                {% csrf_token %}
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.name.label }}</label>
+                    {{ form.name }}
+                    {% if form.name.errors %}
+                    <div class="text-danger small">{{ form.name.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.parent.label }}</label>
+                    {{ form.parent }}
+                    {% if form.parent.errors %}
+                    <div class="text-danger small">{{ form.parent.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.order.label }}</label>
+                    {{ form.order }}
+                    {% if form.order.errors %}
+                    <div class="text-danger small">{{ form.order.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">{{ form.description.label }}</label>
+                    {{ form.description }}
+                    {% if form.description.errors %}
+                    <div class="text-danger small">{{ form.description.errors|striptags }}</div>
+                    {% endif %}
+                </div>
+
+                <button class="btn btn-primary w-100">Kategori Kaydet</button>
+            </form>
+        </div>
+    </div>
+
+    <div class="col-lg-8">
+        <div class="section-card overflow-hidden">
+            <div class="p-4 pb-0 d-flex justify-content-between align-items-center">
+                <h5 class="mb-0">Mevcut Kategoriler</h5>
+                <span class="soft-badge soft-primary">{{ categories|length }} kayıt</span>
+            </div>
+            <div class="p-4 pt-2 mini-text">Alt kategorisi olan kayıtların silme butonu bilinçli olarak pasif tutulur.
+            </div>
+            <div class="table-responsive">
+                <table class="table table-hover mb-0 align-middle">
+                    <thead class="table-light">
+                        <tr>
+                            <th>Kategori</th>
+                            <th>Üst Kategori</th>
+                            <th>Sıra</th>
+                            <th>Görev</th>
+                            <th>Alt Kategori</th>
+                            <th class="text-end">İşlem</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>
+                                <strong>{{ category.name }}</strong>
+                                {% if category.description %}
+                                <div class="small text-muted">{{ category.description|truncatechars:80 }}</div>
+                                {% endif %}
+                            </td>
+                            <td>
+                                {% if category.parent %}
+                                {{ category.parent.name }}
+                                {% else %}
+                                <span class="soft-badge soft-success">Ana kategori</span>
+                                {% endif %}
+                            </td>
+                            <td>{{ category.order }}</td>
+                            <td>{{ category.task_count }}</td>
+                            <td>{{ category.child_count }}</td>
+                            <td class="text-end">
+                                <form method="post" action="{% url 'tracker:category_delete' category.pk %}"
+                                    class="d-inline">
+                                    {% csrf_token %}
+                                    {% if category.child_count %}
+                                    <button class="btn btn-sm btn-outline-danger" disabled
+                                        title="Önce alt kategorileri silin">Sil</button>
+                                    {% else %}
+                                    <button class="btn btn-sm btn-outline-danger">Sil</button>
+                                    {% endif %}
+                                </form>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr>
+                            <td colspan="6" class="empty-state">Henüz kategori yok. Soldaki formdan ilk kategorini
+                                ekleyebilirsin.</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
